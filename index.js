@@ -8,6 +8,8 @@ const address = document.querySelector("#address");
 const addressWarn = document.querySelector("#address-warn");
 const checkout = document.querySelector("#checkout-btn");
 const counter = document.querySelector("#cart-count");
+const personName = document.querySelector("#personName")
+const retiradaBtn = document.querySelector("#retirada-btn")
 
 let cart = [];
 
@@ -65,19 +67,16 @@ function updateCartModal() {
       <div class="flex items-center justify-between mb-4">
         <div>
           <p>${item.name}</p>
-          <p>QTD: ${item.qtd}</p>
-          <p class="font-medium mt-2">R$ ${(item.price * item.qtd).toFixed(
-            2
-          )}</p>
+          <div class="flex items-center">
+            <button class="qty-btn minus" data-name="${item.name}">-</button>
+            <p class="mx-2">${item.qtd}</p>
+            <button class="qty-btn plus " data-name="${item.name}">+</button>
+          </div>
+          <p class="font-medium mt-2">R$ ${(item.price * item.qtd).toFixed(2)}</p>
         </div>
 
-        <button class="remove-btn" data-name="${item.name}">
-          Remover
-        </button>
+        <button class="remove-btn" data-name="${item.name}">Remover</button>
       </div>
-
-      
-      
     `;
 
     cartItemsContainer.appendChild(cartItemElement);
@@ -86,6 +85,20 @@ function updateCartModal() {
   cartTotal.textContent = total.toFixed(2);
   counter.textContent = `(${cart.length})`;
 }
+
+cartItemsContainer.addEventListener("click", (e) => {
+  if (e.target.classList.contains("remove-btn")) {
+    const name = e.target.getAttribute("data-name");
+    removeItemCart(name);
+  } else if (e.target.classList.contains("plus")) {
+    const name = e.target.getAttribute("data-name");
+    addToCart(name, cart.find(item => item.name === name).price);
+  } else if (e.target.classList.contains("minus")) {
+    const name = e.target.getAttribute("data-name");
+    removeItemCart(name);
+  }
+});
+
 
 // checkout.addEventListener("click", () => {
 //   if (address.value.trim() === "") {
@@ -130,49 +143,60 @@ address.addEventListener("input", (e) => {
     addressWarn.classList.add("hidden");
   }
 });
+personName.addEventListener("input", (e) => {
+  let inputValue = e.target.value;
+
+  if (inputValue !== "") {
+    personName.classList.remove("border-red-500");
+    
+  }
+});
 
 checkout.addEventListener("click", () => {
   const isOpen = checkRestaurantOpen();
   if (!isOpen) {
     Toastify({
-      text: "ops o restaurante esta fechado",
+      text: "Ops, o restaurante está fechado",
       duration: 3000,
-
       close: true,
-      gravity: "top", // `top` or `bottom`
-      position: "left", // `left`, `center` or `right`
-      stopOnFocus: true, // Prevents dismissing of toast on hover
+      gravity: "top",
+      position: "left",
+      stopOnFocus: true,
       style: {
-        background: "ef4444",
+        background: "#ef4444",
       },
     }).showToast();
     return;
   }
 
   if (cart.length === 0) return;
-  if (address.value === "") {
+
+  // Verifica se a opção de retirada não está selecionada
+  if (!retiradaBtn.checked && address.value === "") {
     addressWarn.classList.remove("hidden");
     address.classList.add("border-red-500");
     return;
   }
 
+  const withdrawalOption = retiradaBtn.checked ? "Retirada" : "Entrega";
   const cartItems = cart
     .map((item) => {
       return `${item.name} Quantidade: (${item.qtd}) Preço: ${item.price} |`;
     })
     .join("");
 
-  const message = encodeURIComponent(cartItems);
+  const message = encodeURIComponent(`${cartItems} Endereço: ${address.value} Nome: ${personName.value} Opção: ${withdrawalOption}`);
   const phone = "86994384189";
 
   window.open(
-    `https://wa.me/${phone}?text=${message} Endereço: ${address.value}`,
+    `https://wa.me/${phone}?text=${message}`,
     "_blank"
   );
 
   cart.length = 0;
   updateCartModal();
 });
+
 
 function checkRestaurantOpen() {
   const data = new Date();
@@ -190,3 +214,4 @@ if (isOpen) {
   span.classList.remove("bg-green-600");
   span.classList.add("bg-red-500");
 }
+
