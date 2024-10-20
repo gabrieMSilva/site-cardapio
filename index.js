@@ -10,6 +10,10 @@ const checkout = document.querySelector("#checkout-btn");
 const counter = document.querySelector("#cart-count");
 const personName = document.querySelector("#personName")
 const retiradaBtn = document.querySelector("#retirada-btn")
+const bombinhaCheckbox = document.querySelector("#bombinha")
+const coxinhaCheckbox = document.querySelector("#coxinha")
+const pastelCheckbox = document.querySelector("#pastel")
+const canudoCheckbox = document.querySelector("#canudo")
 
 let cart = [];
 
@@ -67,10 +71,10 @@ function updateCartModal() {
       <div class="flex items-center justify-between mb-4">
         <div>
           <p>${item.name}</p>
-          <div class="flex items-center">
-            <button class="qty-btn minus" data-name="${item.name}">-</button>
-            <p class="mx-2">${item.qtd}</p>
-            <button class="qty-btn plus " data-name="${item.name}">+</button>
+          <div class="flex items-center justify-between">
+            <button class="qty-btn minus text-2xl" data-name="${item.name}">-</button>
+            <p class="mx-2 text-2xl">${item.qtd}</p>
+            <button class="qty-btn plus text-2xl " data-name="${item.name}">+</button>
           </div>
           <p class="font-medium mt-2">R$ ${(item.price * item.qtd).toFixed(2)}</p>
         </div>
@@ -178,6 +182,22 @@ checkout.addEventListener("click", () => {
     return;
   }
 
+  // Verifica os checkboxes e captura os valores
+  const saboresSelecionados = [];
+  if (bombinhaCheckbox.checked) {
+    saboresSelecionados.push(bombinhaCheckbox.value);
+  }
+  if (coxinhaCheckbox.checked) {
+    saboresSelecionados.push(coxinhaCheckbox.value);
+  }
+  if (pastelCheckbox.checked) {
+    saboresSelecionados.push(pastelCheckbox.value);
+  }
+  if (canudoCheckbox.checked) {
+    saboresSelecionados.push(canudoCheckbox.value);
+  }
+  
+
   const withdrawalOption = retiradaBtn.checked ? "Retirada" : "Entrega";
   const cartItems = cart
     .map((item) => {
@@ -185,7 +205,12 @@ checkout.addEventListener("click", () => {
     })
     .join("");
 
-  const message = encodeURIComponent(`${cartItems} Endereço: ${address.value} Nome: ${personName.value} Opção: ${withdrawalOption}`);
+  // Incluindo os sabores selecionados na mensagem
+  const saboresMensagem = saboresSelecionados.length > 0 
+    ? ` Sabores selecionados: ${saboresSelecionados.join(", ")} |` 
+    : "";
+
+  const message = encodeURIComponent(`${cartItems} Endereço: ${address.value} | Nome: ${personName.value} | Opção: ${withdrawalOption} | Total: ${cartTotal.textContent} |${saboresMensagem}`);
   const phone = "86994384189";
 
   window.open(
@@ -197,12 +222,22 @@ checkout.addEventListener("click", () => {
   updateCartModal();
 });
 
-
 function checkRestaurantOpen() {
+  const today = new Date();
+  const diaHj = today.getUTCDay()
   const data = new Date();
   const hora = data.getHours();
-  return hora >= 15 && hora < 20;
+  // return hora >= 15 && hora < 20 && diaHj ;
+
+  if (diaHj === 0 || hora < 15 || hora >= 20) {
+    return false; // Fechado
+  }
+
+  return true; // Aberto
 }
+
+  
+
 
 const span = document.querySelector("#data-span");
 const isOpen = checkRestaurantOpen();
