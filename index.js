@@ -201,17 +201,27 @@ checkout.addEventListener("click", () => {
   const withdrawalOption = retiradaBtn.checked ? "Retirada" : "Entrega";
   const cartItems = cart
     .map((item) => {
-      return `${item.name} Quantidade: (${item.qtd}) Preço: ${item.price} |`;
+      return `${item.name} Quantidade: 
+       (${item.qtd}) Preço: ${item.price} |`;
     })
     .join("");
 
   // Incluindo os sabores selecionados na mensagem
   const saboresMensagem = saboresSelecionados.length > 0 
-    ? ` Sabores selecionados: ${saboresSelecionados.join(", ")} |` 
-    : "";
+  ? ` Sabores selecionados: ${saboresSelecionados.join(", ")} \n` 
+  : "\n";
 
-  const message = encodeURIComponent(`${cartItems} Endereço: ${address.value} | Nome: ${personName.value} | Opção: ${withdrawalOption} | Total: ${cartTotal.textContent} |${saboresMensagem}`);
-  const phone = "86994384189";
+const message = encodeURIComponent(
+  `${cartItems} \n` +
+  `Endereço: ${address.value} \n` +
+  `Nome: ${personName.value} \n` +
+  `Opção: ${withdrawalOption} \n` +
+  `Total: ${cartTotal.textContent} \n` +
+  `${saboresMensagem} \n`
+  
+);
+const phone = "86994384189";
+
 
   window.open(
     `https://wa.me/${phone}?text=${message}`,
@@ -229,15 +239,12 @@ function checkRestaurantOpen() {
   const hora = data.getHours();
   // return hora >= 15 && hora < 20 && diaHj ;
 
-  if (diaHj === 0 || hora < 15 || hora >= 20) {
+  if (diaHj === 0 || hora < 12 || hora >= 20) {
     return false; // Fechado
   }
 
   return true; // Aberto
 }
-
-  
-
 
 const span = document.querySelector("#data-span");
 const isOpen = checkRestaurantOpen();
