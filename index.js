@@ -239,7 +239,7 @@ function checkRestaurantOpen() {
   const hora = data.getHours();
   // return hora >= 15 && hora < 20 && diaHj ;
 
-  if (diaHj === 0 || hora < 12 || hora >= 20) {
+  if (diaHj === 0 || hora < 15 || hora >= 20) {
     return false; // Fechado
   }
 
